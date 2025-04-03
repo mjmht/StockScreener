@@ -1,4 +1,14 @@
 from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def home():
+    return {"message": "Stock Screener is running!"}
+
+@app.get("/scan/")
+def get_latest_scan():
+    return {"message": "Scanning stocks..."}  # Replace with actual stock scanner response
 import requests
 from bs4 import BeautifulSoup
 import yfinance as yf
