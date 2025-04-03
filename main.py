@@ -1,14 +1,4 @@
 from fastapi import FastAPI
-
-app = FastAPI()
-
-@app.get("/")
-def home():
-    return {"message": "Stock Screener is running!"}
-
-@app.get("/scan/")
-def get_latest_scan():
-    return {"message": "Scanning stocks..."}  # Replace with actual stock scanner response
 import requests
 from bs4 import BeautifulSoup
 import yfinance as yf
@@ -18,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import json
 import os
 
+# ✅ Define FastAPI app (Only once)
 app = FastAPI()
 
 # ✅ File to store last valid results
@@ -29,6 +20,11 @@ if os.path.exists(RESULTS_FILE):
         latest_results = json.load(f)
 else:
     latest_results = {"gainers": [], "losers": []}
+
+# ✅ Home route
+@app.get("/")
+def home():
+    return {"message": "Stock Screener is running!"}
 
 # ✅ Function to fetch latest Nifty F&O stocks
 def fetch_nifty_fo_stocks():
@@ -55,13 +51,13 @@ def fetch_nifty_fo_stocks():
 
         return stocks
 
-# Function to fetch stock data
+# ✅ Function to fetch stock data
 def get_stock_data(ticker: str):
     stock = yf.Ticker(ticker)
     df = stock.history(period="10d")  # Fetch last 10 days data
     return df
 
-# Function to calculate Camarilla levels
+# ✅ Function to calculate Camarilla levels
 def calculate_camarilla_levels(df):
     last_close = df["Close"].iloc[-2]
     last_high = df["High"].iloc[-2]
@@ -72,7 +68,7 @@ def calculate_camarilla_levels(df):
 
     return r4, s4
 
-# Function to check stock conditions
+# ✅ Function to check stock conditions
 def check_stock_conditions(ticker):
     df = get_stock_data(ticker)
     if len(df) < 4:
@@ -146,5 +142,6 @@ scheduler.start()
 def get_latest_scan():
     return latest_results if latest_results["gainers"] or latest_results["losers"] else {"message": "No stocks met the criteria yet"}
 
+# ✅ Run the FastAPI app
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
